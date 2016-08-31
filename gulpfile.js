@@ -46,7 +46,7 @@ gulp.task('sync', function(callback) {
 });
 gulp.task('clean', function () {
   return del(['./www']).then(paths => {
-    console.log('Deleted files and folders:\n', paths.join('\n'));
+    console.log('Deleted : ', paths.join('\n'));
   });
 });
 gulp.task('css', function () {
