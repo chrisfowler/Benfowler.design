@@ -18,6 +18,13 @@ lib-cov
 # Coverage directory used by tools like istanbul
 coverage
 
+# ./www build file
+www
+
+# minified files
+css/**/*.min.css
+js/**/*.min.js
+
 # nyc test coverage
 .nyc_output
 

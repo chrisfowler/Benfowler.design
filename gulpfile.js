@@ -9,6 +9,13 @@ var pkg = require('./package.json');
 var del = require('del');
 var shell = require('gulp-shell');
 var runSequence = require('run-sequence');
+var chalk = require('chalk');
+
+// destination bucket
+var bucket = {
+  'name': 'www.benfowler.design',
+  'url': "s3://www.benfowler.design"
+}
 
 // Set the banner content
 var banner = ['/*!\n',
@@ -18,6 +25,65 @@ var banner = ['/*!\n',
     ' */\n',
     ''
 ].join('');
+
+// ****************************************************************
+// Copy over required files to ./www folder and sync with s3 bucket
+gulp.task('sync', function(callback) {
+  runSequence(
+    ['default', 'clean'],
+    ['www', 'css', 'js', 'fonts', 'vendor'],
+    'upload',
+    function (error) {
+      if (error) {
+        //bad
+        console.log(chalk.red("Damn damn damn....  " + error));
+      }
+      else {
+        //good
+        console.log(chalk.green("All Done!"));
+      }
+    });
+});
+gulp.task('clean', function () {
+  return del(['./www']).then(paths => {
+    console.log('Deleted files and folders:\n', paths.join('\n'));
+  });
+});
+gulp.task('css', function () {
+  return gulp.src('./css/**/*.min.css')
+    .pipe(gulp.dest('./www/css'))
+});
+gulp.task('www', function () {
+  return gulp.src('./index.html')
+    .pipe(gulp.dest('./www'))
+});
+gulp.task('js', function () {
+  return gulp.src('./js/**/*.min.js')
+    .pipe(gulp.dest('./www/js'))
+});
+gulp.task('vendor', function () {
+  return gulp.src('./vendor/**/*')
+    .pipe(gulp.dest('./www/vendor'))
+});
+gulp.task('fonts', function () {
+  return gulp.src('./fonts/**/*')
+    .pipe(gulp.dest('./www/fonts'))
+});
+gulp.task('upload', function () {
+  return gulp.src('./www', {read: false})
+    .pipe(shell([
+      'echo aws s3 <%= file.path %> <%= bucket() %>'
+    ], {
+      templateData: {
+        bucket: function () {
+          return bucket.url;
+        }
+      }
+    }))
+});
+// ****************************************************************
+
+
 
 // Compile LESS files from /less into /css
 gulp.task('less', function() {
