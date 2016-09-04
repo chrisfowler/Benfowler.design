@@ -31,7 +31,7 @@ var banner = ['/*!\n',
 gulp.task('sync', function(callback) {
   runSequence(
     ['default', 'clean'],
-    ['www', 'css', 'js', 'fonts', 'vendor'],
+    ['www', 'css', 'js', 'fonts', 'vendor','img'],
     'upload',
     function (error) {
       if (error) {
@@ -53,6 +53,10 @@ gulp.task('css', function () {
   return gulp.src('./css/**/*.min.css')
     .pipe(gulp.dest('./www/css'))
 });
+gulp.task('img', function () {
+  return gulp.src('./img/**/*')
+    .pipe(gulp.dest('./www/img'))
+});
 gulp.task('www', function () {
   return gulp.src('./index.html')
     .pipe(gulp.dest('./www'))
@@ -72,7 +76,7 @@ gulp.task('fonts', function () {
 gulp.task('upload', function () {
   return gulp.src('./www', {read: false})
     .pipe(shell([
-      'echo aws s3 <%= file.path %> <%= bucket() %>'
+      'aws s3 sync <%= file.path %> <%= bucket() %>'
     ], {
       templateData: {
         bucket: function () {
